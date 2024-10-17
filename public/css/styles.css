@@ -35,13 +35,4 @@ input, textarea, button {
 }
 
 button {
-    background-color: #0066cc;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
+    background-color: #006

@@ -1,0 +1,24 @@
+<!-- views/upload.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Drawings</title>
+</head>
+<body>
+    <h1>Upload Drawings</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="drawing" accept="image/*,application/pdf,.dwg">
+        <br><br>
+        <label for="comment">Add Comment:</label>
+        <textarea name="comment" required></textarea>
+        <br><br>
+        <label for="email">Notify Email (Optional):</label>
+        <input type="email" name="email">
+        <br><br>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>
+

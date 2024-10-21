@@ -13,19 +13,30 @@
         </div>
         <h1>Welcome to Sneha Civil Engineering</h1>
     </header>
+
     <main>
         <section>
-            <h2>Civil Engineering Management</h2>
-            <ul>
-                <li><a href="/upload">Upload Drawings</a></li>
-                <li><a href="/files">View/Download Drawings</a></li> <!-- Updated link -->
-                <li><a href="/approvals">Approvals</a></li>
-                <li><a href="/progress">Progress Tracking</a></li>
-            </ul>
+            <% if (user && user.loggedIn) { %> <!-- Check if the user is logged in -->
+                <h2>Civil Engineering Management</h2>
+                <ul>
+                    <% if (user.department === 'civil') { %> <!-- Check user department -->
+                        <li><a href="/upload">Upload Drawings</a></li>
+                        <li><a href="/files">View/Download Drawings</a></li>
+                        <li><a href="/approvals">Approvals</a></li>
+                        <li><a href="/progress">Progress Tracking</a></li>
+                    <% } else { %>
+                        <p>You do not have access to civil management features.</p>
+                    <% } %>
+                </ul>
+            <% } else { %>
+                <p>Please <a href="/login">login</a> to access the features.</p>
+                <p>If you are not a registered user, please <a href="/register">register</a>.</p>
+            <% } %>
         </section>
     </main>
+
     <footer>
-        <p>&copy; 2024 Sneha. All rights reserved.</p>
+        <p>&copy; 2024 Sneha Civil Engineering</p>
     </footer>
 </body>
 </html>

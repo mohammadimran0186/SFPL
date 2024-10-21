@@ -12,11 +12,12 @@
         <% files.forEach(function(file) { %>
             <li>
                 <%= file %>
+                <!-- Conditional buttons based on file type -->
                 <% if (file.endsWith('.dwg')) { %>
                     <!-- Only download button for DWG files -->
                     <a href="/uploads/<%= file %>" download>Download</a>
-                <% } else { %>
-                    <!-- View and download buttons for other file types -->
+                <% } else if (file.endsWith('.pdf') || file.endsWith('.png') || file.endsWith('.jpg')) { %>
+                    <!-- View and download buttons for PDF and image files -->
                     <a href="/uploads/<%= file %>" target="_blank">View</a>
                     <a href="/uploads/<%= file %>" download>Download</a>
                 <% } %>
@@ -24,8 +25,8 @@
         <% }); %>
     </ul>
 
-    <a href="/upload">Upload More Drawings</a>
-    <a href="/">Go to Homepage</a>
+    <!-- Back to the index/home page -->
+    <a href="/">Back to Home</a>
 </body>
 </html>
 

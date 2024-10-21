@@ -1,0 +1,8 @@
+<h1>Enter OTP for Additional Security</h1>
+<form action="/verify-login-otp" method="POST">
+    <label for="otp">OTP:</label>
+    <input type="text" id="otp" name="otp" required><br>
+    <input type="hidden" name="username" value="<%= username %>">
+    <button type="submit">Verify OTP</button>
+</form>
+

@@ -1,14 +1,21 @@
 const express = require('express');
 const session = require('express-session');
+const path = require('path');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
-const app = express();
-const PORT = 3000;
 
-// Middleware
-app.set('view engine', 'ejs');
+// Import routes for civil management
+const indexRoutes = require('./routes/index');    // Home page routes
+const uploadRoutes = require('./routes/upload');  // Upload page routes
+const fileRoutes = require('./routes/files');     // View/Download drawings page routes
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware setup
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session setup
 app.use(session({
@@ -17,7 +24,14 @@ app.use(session({
     saveUninitialized: true
 }));
 
-// Simulated user storage
+// Set view engine and views directory
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve uploaded files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Simulated user storage (replace with DB for production)
 const users = [];
 
 // Function to send OTP email
@@ -40,29 +54,28 @@ function sendOtpEmail(email, otp) {
     return transporter.sendMail(mailOptions);
 }
 
-// Render Home Page
+// Render home page
 app.get('/', (req, res) => {
-    const user = req.session.user || {}; // Ensure user is always an object
+    const user = req.session.user || {}; 
     res.render('index', { user });
 });
 
-// Render Register Page
+// Registration page
 app.get('/register', (req, res) => {
     res.render('register', { error: null });
 });
 
-// Handle Register Form Submission
+// Handle registration form submission
 app.post('/register', (req, res) => {
     const { email, password } = req.body;
-    const otp = Math.floor(100000 + Math.random() * 900000); // Generate random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
 
-    // Store OTP and user details in the session
+    // Store OTP and user details in session
     req.session.tempUser = { email, password, otp };
 
-    // Send OTP to user's email
     sendOtpEmail(email, otp)
         .then(() => {
-            res.redirect('/verify-otp'); // Redirect to OTP verification page
+            res.redirect('/verify-otp');
         })
         .catch((error) => {
             console.error('Error sending OTP:', error);
@@ -70,109 +83,73 @@ app.post('/register', (req, res) => {
         });
 });
 
-// Render OTP Verification Page
+// OTP verification page
 app.get('/verify-otp', (req, res) => {
     res.render('verify-otp', { error: null });
 });
 
-// Handle OTP Verification
+// Handle OTP verification
 app.post('/verify-otp', (req, res) => {
     const { otp } = req.body;
-
     if (req.session.tempUser && req.session.tempUser.otp == otp) {
-        // OTP is correct, save the user
         users.push({
             email: req.session.tempUser.email,
             password: req.session.tempUser.password,
-            department: 'civil', // For simplicity, setting department to 'civil'
+            department: 'civil',
             loggedIn: false
         });
-
-        // Clear temporary user and redirect to login
         delete req.session.tempUser;
         res.redirect('/login');
     } else {
-        // OTP is incorrect
         res.render('verify-otp', { error: 'Invalid OTP. Please try again.' });
     }
 });
 
-// Render Login Page
+// Login page
 app.get('/login', (req, res) => {
     res.render('login', { error: null });
 });
 
-// Handle Login Form Submission
+// Handle login form submission
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-
-    // Find the user
     const user = users.find(u => u.email === email && u.password === password);
-
     if (user) {
-        // User found, log in and redirect to dashboard
         req.session.user = { ...user, loggedIn: true };
         res.redirect('/');
     } else {
-        // Invalid credentials
         res.render('login', { error: 'Invalid email or password.' });
     }
 });
 
-// Render Upload Drawings Page
-app.get('/upload', (req, res) => {
-    const user = req.session.user || {};
-    if (user.loggedIn) {
-        res.render('upload-drawings', { user });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-// Render View/Download Drawings Page
-app.get('/files', (req, res) => {
-    const user = req.session.user || {};
-    if (user.loggedIn) {
-        res.render('view-download-drawings', { user });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-// Render Approvals Page
-app.get('/approvals', (req, res) => {
-    const user = req.session.user || {};
-    if (user.loggedIn) {
-        res.render('approvals', { user });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-// Render Progress Tracking Page
-app.get('/progress', (req, res) => {
-    const user = req.session.user || {};
-    if (user.loggedIn) {
-        res.render('progress-tracking', { user });
-    } else {
-        res.redirect('/login');
-    }
-});
-
-// Handle Logout
+// Logout functionality
 app.get('/logout', (req, res) => {
     req.session.destroy(() => {
         res.redirect('/login');
     });
 });
 
-// Handle 404 Errors (Optional)
+// Civil engineering management routes (protected by login)
+app.use('/', (req, res, next) => {
+    const user = req.session.user || {};
+    if (user.loggedIn) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+});
+
+app.use('/', indexRoutes);      // Home page
+app.use('/upload', uploadRoutes);  // Upload page
+app.use('/files', fileRoutes);     // View/Download drawings page
+
+// Handle 404 Errors
 app.use((req, res) => {
     res.status(404).send('Page not found');
 });
 
-// Start Server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
 

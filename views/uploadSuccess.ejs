@@ -5,14 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/styles.css">
     <title>Upload Successful</title>
-    <script>
-        function showButtons() {
-            document.getElementById('view-download-btn').style.display = 'block';
-            document.getElementById('home-btn').style.display = 'block';
-        }
-
-        setTimeout(showButtons, 3000); // Show buttons after 3 seconds
-    </script>
 </head>
 <body>
     <header>
@@ -22,19 +14,15 @@
         <h1>Upload Successful</h1>
     </header>
     <main>
-        <h2>Files uploaded successfully!</h2>
-        <p>Your drawing file: <strong><%= filename %></strong></p>
-
-        <div id="view-download-btn" style="display: none;">
-            <a href="/files">View/Download Drawings</a>
+        <h2>Your drawing file has been uploaded successfully!</h2>
+        <p>Uploaded file: <strong><%= filename %></strong></p>
+        <div>
+            <a href="/uploads/<%= filename %>" download>Download File</a>
         </div>
-        <div id="home-btn" style="display: none;">
-            <a href="/">Go to Home</a>
+        <div>
+            <a href="/">Go back to Home</a>
         </div>
     </main>
-    <footer>
-        <p>&copy; 2024 Sneha. All rights reserved.</p>
-    </footer>
 </body>
 </html>
 
